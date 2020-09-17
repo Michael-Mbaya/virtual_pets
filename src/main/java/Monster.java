@@ -1,5 +1,6 @@
 import org.sql2o.Connection;
-
+import java.util.Timer;
+import java.util.TimerTask;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ public class Monster {
     private Timestamp lastSlept;
     private Timestamp lastAte;
     private Timestamp lastPlayed;
+    private Timer timer;
 
     public static final int MAX_FOOD_LEVEL = 3;
     public static final int MAX_SLEEP_LEVEL = 8;
@@ -29,6 +31,10 @@ public class Monster {
         playLevel = MAX_PLAY_LEVEL / 2;
         sleepLevel = MAX_SLEEP_LEVEL / 2;
         foodLevel = MAX_FOOD_LEVEL / 2;
+
+        //Let's integrate a basic Timer into our application. We'll begin with a test:
+        timer = new Timer();
+
     }
 
     public String getName(){
@@ -104,9 +110,12 @@ public class Monster {
     }
 
     public void depleteLevels(){
-        playLevel--;
-        foodLevel--;
-        sleepLevel--;
+    //alter your depleteLevels() method to prevent it from lowering levels after the Monster has died
+        if (isAlive()){
+            playLevel--;
+            foodLevel--;
+            sleepLevel--;
+        }
     }
 
     public void play(){
@@ -163,6 +172,21 @@ public class Monster {
     public Timestamp getLastPlayed(){
         return lastPlayed;
     }
+
+    public void startTimer(){       //write our startTimer() method now:
+        Monster currentMonster = this;
+        TimerTask timerTask = new TimerTask(){
+            @Override
+            public void run() {
+                if (!currentMonster.isAlive()){
+                    cancel();
+                }
+                depleteLevels();
+            }
+        };
+        this.timer.schedule(timerTask, 0, 600);
+    }
+
 }
 
 
